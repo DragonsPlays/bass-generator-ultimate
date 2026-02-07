@@ -3,7 +3,7 @@
 Gerador de batidas graves multiestilos para teste de subwoofer e caixa de som.
 
 ![Bass Generator](https://img.shields.io/badge/🔊-Bass%20Generator-red?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-0.1-beta-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-0.1%20BETA-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
 ---
