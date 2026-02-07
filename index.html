@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔊 Bass Generator Ultimate - Teste de Grave</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+        .container{max-width:960px;margin:0 auto;padding:15px}
+
+        .header{text-align:center;padding:20px 0;border-bottom:1px solid #ff004030;margin-bottom:20px}
+        .header h1{font-size:2.2em;background:linear-gradient(135deg,#ff0040,#ff6600,#ff0040);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .header .sub{color:#888;font-size:13px;margin-top:5px}
+
+        .yt-banner{background:linear-gradient(135deg,#1a0000,#330000,#1a0000);border:2px solid #ff0040;border-radius:15px;padding:20px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;animation:glow 3s ease-in-out infinite alternate}
+        @keyframes glow{from{box-shadow:0 0 15px #ff004030}to{box-shadow:0 0 35px #ff004060}}
+        .yt-banner::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,#ff004010,transparent 70%);animation:rot 10s linear infinite}
+        @keyframes rot{to{transform:rotate(360deg)}}
+        .yt-banner *{position:relative;z-index:1}
+        .yt-banner h2{color:#ff0040;font-size:20px;margin-bottom:8px}
+        .yt-banner p{color:#ccc;font-size:13px;margin-bottom:12px}
+        .yt-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:#ff0000;color:#fff;text-decoration:none;border-radius:50px;font-weight:bold;font-size:15px;transition:.3s;border:2px solid #ff3333}
+        .yt-btn:hover{transform:scale(1.05);box-shadow:0 0 30px #ff000060}
+        .yt-btn svg{width:22px;height:22px;fill:#fff}
+        .yt-handle{color:#888;font-size:12px;margin-top:8px}
+
+        .warn{background:linear-gradient(135deg,#2a1a00,#1a1000);border:1px solid #ff660040;border-radius:10px;padding:10px 18px;text-align:center;color:#ff9900;font-size:12px;margin-bottom:18px}
+
+        .tabs{display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap;justify-content:center}
+        .tab-btn{padding:9px 16px;background:#1a1a1a;border:1px solid #333;color:#aaa;border-radius:10px 10px 0 0;cursor:pointer;font-family:inherit;font-size:12px;transition:.3s}
+        .tab-btn.active{background:#1a1a1a;border-color:#ff0040;color:#ff0040}
+        .tab-btn:hover{color:#fff}
+        .tab-c{display:none}.tab-c.active{display:block}
+
+        #vizBox{position:relative;width:100%;height:160px;background:#0f0f0f;border-radius:12px;overflow:hidden;margin-bottom:15px;border:1px solid #ff004020}
+        #vizCv{width:100%;height:100%}
+        .vov{position:absolute;top:8px;padding:4px 10px;background:#00000080;border-radius:6px;font-size:11px}
+        .vl{left:10px;color:#ff6600}.vr{right:10px;color:#ff0040;font-size:16px;font-weight:bold}
+
+        .vmeter{display:flex;gap:2px;height:35px;align-items:flex-end;justify-content:center;margin-bottom:15px}
+        .vbar{width:5px;min-height:2px;border-radius:1px;transition:height .05s;background:#0c4}
+
+        .mctrl{display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+        .btn{padding:12px 28px;font-size:15px;border:none;border-radius:50px;cursor:pointer;font-weight:bold;transition:.3s;font-family:inherit}
+        .btn-p{background:linear-gradient(135deg,#ff0040,#cc0030);color:#fff;box-shadow:0 4px 20px #ff004050}
+        .btn-p:hover{transform:scale(1.05)}
+        .btn-p.on{background:linear-gradient(135deg,#ff6600,#cc5500);animation:pul .5s ease-in-out infinite alternate}
+        @keyframes pul{from{transform:scale(1)}to{transform:scale(1.03)}}
+        .btn-s{background:#222;color:#fff;border:1px solid #444}.btn-s:hover{background:#333}
+        .btn-d{background:linear-gradient(135deg,#0a4,#083);color:#fff}
+        .btn-d:hover{transform:scale(1.05)}
+
+        .sec{background:#111;border-radius:12px;padding:18px;margin-bottom:18px;border:1px solid #222}
+        .sec h2{font-size:15px;color:#ff0040;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+        .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        @media(max-width:600px){.sgrid{grid-template-columns:1fr}}
+        .sitem{background:#1a1a1a;padding:10px 12px;border-radius:8px;border:1px solid #2a2a2a}
+        .sitem label{display:flex;justify-content:space-between;font-size:11px;color:#ccc;margin-bottom:5px}
+        .sitem label span{color:#ff6600;font-weight:bold}
+        input[type=range]{width:100%;height:5px;-webkit-appearance:none;background:#333;border-radius:3px;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#ff0040,#ff6600);cursor:pointer}
+
+        .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px}
+        .bp{padding:9px 12px;font-size:11px;background:#1a1a2e;color:#aaa;border:1px solid #333;border-radius:8px;cursor:pointer;transition:.3s;font-family:inherit;text-align:center}
+        .bp:hover{border-color:#ff0040;color:#fff}
+        .bp.active{border-color:#ff0040;color:#ff0040;background:#2a0a15;box-shadow:0 0 12px #ff004030}
+
+        .brow{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+        .blbl{width:58px;font-size:10px;color:#888;text-align:right;flex-shrink:0}
+        .bgrid{display:flex;gap:2px;flex-wrap:wrap}
+        .bstep{width:32px;height:32px;border-radius:4px;border:2px solid #333;background:#1a1a1a;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;font-size:8px;color:#555}
+        .bstep.active{border-color:#ff0040;color:#fff}
+        .bstep.cur{border-color:#fff;box-shadow:0 0 8px #fff5}
+
+        .bgrd{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+        .bcard{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:14px;cursor:pointer;transition:.3s;text-align:center}
+        .bcard:hover{border-color:#ff0040;transform:translateY(-2px)}
+        .bcard.active{border-color:#ff0040;background:#1a0a10}
+        .bcard .bicon{font-size:28px;margin-bottom:6px}
+        .bcard .bname{font-weight:bold;font-size:13px}
+        .bcard .bdesc{font-size:10px;color:#888;margin-top:3px}
+        .bcard .bfreq{font-size:9px;color:#ff6600;margin-top:5px}
+
+        .fgrid{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+        .fbtn{padding:7px 12px;border:1px solid #333;background:#1a1a1a;color:#aaa;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;transition:.3s}
+        .fbtn:hover{border-color:#ff0040;color:#fff}
+        .fbtn.on{background:#ff004030;border-color:#ff0040;color:#ff0040}
+
+        .eqbars{display:flex;gap:12px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+        .eqband{display:flex;flex-direction:column;align-items:center;gap:4px}
+        .eqband input[type=range]{writing-mode:vertical-lr;direction:rtl;height:110px;width:28px}
+        .eqband label{font-size:9px;color:#888}
+        .eqband .eqv{font-size:9px;color:#ff6600}
+
+        .genre-section{margin-bottom:15px}
+        .genre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+        .genre-card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:15px;cursor:pointer;transition:.3s;text-align:center;position:relative;overflow:hidden}
+        .genre-card:hover{border-color:#ff0040;transform:translateY(-2px);box-shadow:0 5px 20px #0005}
+        .genre-card.active{border-color:#ff0040;background:linear-gradient(135deg,#1a0a10,#200a15)}
+        .genre-card .gicon{font-size:36px;margin-bottom:8px}
+        .genre-card .gname{font-weight:bold;font-size:14px;color:#eee}
+        .genre-card .gdesc{font-size:10px;color:#888;margin-top:4px}
+        .genre-card .gbpm{font-size:10px;color:#ff6600;margin-top:6px;font-weight:bold}
+
+        .subgenre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin-top:10px}
+        .subgenre-btn{padding:10px;font-size:11px;background:#151520;color:#aaa;border:1px solid #2a2a2a;border-radius:8px;cursor:pointer;transition:.3s;font-family:inherit;text-align:center}
+        .subgenre-btn:hover{border-color:#ff6600;color:#fff}
+        .subgenre-btn.active{border-color:#ff6600;color:#ff6600;background:#201510}
+
+        .sys-step{background:#1a1a1a;border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid #ff0040}
+        .sys-step h4{color:#ff6600;margin-bottom:4px;font-size:13px}
+        .sys-step p{color:#aaa;font-size:12px;line-height:1.4}
+        .sys-step code{background:#0a0a0a;padding:2px 6px;border-radius:3px;color:#ff0040;font-size:11px}
+
+        .dlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}
+        .dlcard{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center;transition:.3s}
+        .dlcard:hover{border-color:#0a4}
+        .dlcard .dlicon{font-size:32px;margin-bottom:8px}
+        .dlcard .dltitle{font-weight:bold;margin-bottom:4px;font-size:13px}
+        .dlcard .dldesc{font-size:11px;color:#888;margin-bottom:10px}
+        .dlbtn{display:inline-block;padding:7px 18px;background:#0a4;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;transition:.3s}
+        .dlbtn:hover{background:#0c5;transform:scale(1.05)}
+
+        .rec{display:none;align-items:center;gap:8px;justify-content:center;margin:10px 0;color:#ff0040;font-size:13px}
+        .rec.active{display:flex}
+        .rdot{width:10px;height:10px;background:#ff0040;border-radius:50%;animation:bk 1s infinite}
+        @keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+
+        .now-playing{background:linear-gradient(135deg,#1a1020,#151525);border:1px solid #ff006630;border-radius:12px;padding:15px;margin-bottom:15px;text-align:center}
+        .now-playing .np-genre{font-size:24px;font-weight:bold;color:#ff0040;margin:5px 0}
+        .now-playing .np-sub{color:#ff6600;font-size:13px}
+        .now-playing .np-info{color:#888;font-size:11px;margin-top:5px}
+
+        footer{text-align:center;padding:20px;border-top:1px solid #222;margin-top:25px}
+        footer a{color:#ff0040;text-decoration:none}
+        footer a:hover{text-decoration:underline}
+        footer p{color:#555;font-size:11px;margin:4px 0}
+
+        @media(max-width:500px){
+            .header h1{font-size:1.5em}
+            .bstep{width:24px;height:24px;font-size:7px}
+            .genre-grid{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))}
+            .genre-card .gicon{font-size:28px}
+            .eqbars{gap:6px}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>🔊 BASS GENERATOR ULTIMATE</h1>
+        <p class="sub">Gerador de Grave Multiestilos | Teste de Subwoofer | Equalizador</p>
+    </div>
+
+    <div class="yt-banner">
+        <h2>🐉 DRAGONS PLAYS OFC</h2>
+        <p>Se inscreva no canal e apoie o projeto! Games, tech e muito mais!</p>
+        <a href="https://www.youtube.com/@dragonsplaysofc" target="_blank" class="yt-btn">
+            <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            INSCREVER-SE
+        </a>
+        <p class="yt-handle">@dragonsplaysofc</p>
+    </div>
+
+    <div class="warn">⚠️ CUIDADO: Sons graves extremos! Comece com volume BAIXO.</div>
+
+    <!-- Now Playing -->
+    <div class="now-playing" id="nowPlaying">
+        <div style="font-size:12px;color:#666;">TOCANDO AGORA</div>
+        <div class="np-genre" id="npGenre">🔊 Funk Gravão</div>
+        <div class="np-sub" id="npSub">Clássico</div>
+        <div class="np-info" id="npInfo">130 BPM | 45Hz Bass | 30Hz Sub</div>
+    </div>
+
+    <!-- Visualizer -->
+    <div id="vizBox"><canvas id="vizCv"></canvas><div class="vov vl" id="bpmS">130 BPM</div><div class="vov vr" id="bassS">BASS</div></div>
+    <div class="vmeter" id="vMeter"></div>
+    <div class="rec" id="recInd"><div class="rdot"></div><span id="recTxt">Gravando... 0s</span></div>
+
+    <!-- Controls -->
+    <div class="mctrl">
+        <button class="btn btn-p" id="btnP" onclick="togglePlay()">▶ TOCAR</button>
+        <button class="btn btn-s" onclick="stopAll()">⏹ PARAR</button>
+        <button class="btn btn-d" onclick="showTab('download')">💾 BAIXAR</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('genres')">🎵 Estilos</button>
+        <button class="tab-btn" onclick="showTab('beats')">🥁 Batidas</button>
+        <button class="tab-btn" onclick="showTab('brands')">📱 Marcas</button>
+        <button class="tab-btn" onclick="showTab('eq')">🎛️ Equalizador</button>
+        <button class="tab-btn" onclick="showTab('sysaudio')">🔌 Áudio Apps</button>
+        <button class="tab-btn" onclick="showTab('freq')">📊 Teste Hz</button>
+        <button class="tab-btn" onclick="showTab('download')">💾 Download</button>
+    </div>
+
+    <!-- ==================== TAB: GENRES ==================== -->
+    <div class="tab-c active" id="tab-genres">
+        <div class="sec">
+            <h2>🎵 Escolha o Estilo Musical</h2>
+            <div class="genre-grid" id="genreGrid"></div>
+        </div>
+        <div class="sec" id="subgenreBox" style="display:none">
+            <h2 id="subgenreTitle">🎶 Sub-estilos</h2>
+            <div class="subgenre-grid" id="subgenreGrid"></div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: BEATS ==================== -->
+    <div class="tab-c" id="tab-beats">
+        <div class="sec">
+            <h2>🎛️ Controles</h2>
+            <div class="sgrid">
+                <div class="sitem"><label>Volume <span id="vVol">75%</span></label><input type="range" id="sVol" min="0" max="100" value="75" oninput="updS()"></div>
+                <div class="sitem"><label>BPM <span id="vBpm">130</span></label><input type="range" id="sBpm" min="40" max="220" value="130" oninput="updS()"></div>
+                <div class="sitem"><label>Freq Grave Hz <span id="vBass">45</span></label><input type="range" id="sBass" min="20" max="120" value="45" oninput="updS()"></div>
+                <div class="sitem"><label>Sub-Bass Hz <span id="vSub">30</span></label><input type="range" id="sSub" min="15" max="80" value="30" oninput="updS()"></div>
+                <div class="sitem"><label>Intensidade <span id="vInt">80%</span></label><input type="range" id="sInt" min="0" max="100" value="80" oninput="updS()"></div>
+                <div class="sitem"><label>Distorção <span id="vDist">20%</span></label><input type="range" id="sDist" min="0" max="100" value="20" oninput="updS()"></div>
+                <div class="sitem"><label>Kick Attack <span id="vKick">70%</span></label><input type="range" id="sKick" min="0" max="100" value="70" oninput="updS()"></div>
+                <div class="sitem"><label>Swing <span id="vSwing">0%</span></label><input type="range" id="sSwing" min="0" max="100" value="0" oninput="updS()"></div>
+            </div>
+        </div>
+        <div class="sec">
+            <h2>🥁 Padrão de Batida (16 Steps)</h2>
+            <div id="beatBox"></div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: BRANDS ==================== -->
+    <div class="tab-c" id="tab-brands">
+        <div class="sec"><h2>📱 Teste por Marca</h2><p style="color:#888;font-size:11px;margin-bottom:12px">Selecione sua caixa para EQ otimizado.</p><div class="bgrd" id="brandGrid"></div></div>
+        <div class="sec" id="brandInfo" style="display:none"><h2 id="biTitle">📋 Info</h2><div id="biContent"></div></div>
+    </div>
+
+    <!-- ==================== TAB: EQ ==================== -->
+    <div class="tab-c" id="tab-eq">
+        <div class="sec">
+            <h2>🎛️ Equalizador</h2>
+            <p style="color:#888;font-size:11px;margin-bottom:12px">Modifica som de Spotify, YouTube etc em tempo real.</p>
+            <div style="text-align:center;margin-bottom:15px">
+                <button class="btn btn-p" onclick="captureSys()" id="btnCap">🎤 CAPTURAR ÁUDIO</button>
+                <button class="btn btn-s" onclick="stopSys()" style="margin-left:8px">⏹ PARAR</button>
+            </div>
+            <div class="eqbars" id="eqBars"></div>
+            <div style="margin-top:15px">
+                <h2 style="color:#ff0040;font-size:13px;margin-bottom:8px">Presets EQ</h2>
+                <div class="pgrid">
+                    <button class="bp" onclick="loadEQ('flat')">📏 Flat</button>
+                    <button class="bp" onclick="loadEQ('bassBoost')">🔊 Bass Boost</button>
+                    <button class="bp" onclick="loadEQ('megaBass')">💥 Mega Bass</button>
+                    <button class="bp" onclick="loadEQ('vShape')">🎵 V-Shape</button>
+                    <button class="bp" onclick="loadEQ('subBoost')">🌊 Sub Boost</button>
+                    <button class="bp" onclick="loadEQ('loudness')">📢 Loudness</button>
+                    <button class="bp" onclick="loadEQ('carAudio')">🚗 Car Audio</button>
+                    <button class="bp" onclick="loadEQ('funk')">🎶 Funk</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: SYS AUDIO ==================== -->
+    <div class="tab-c" id="tab-sysaudio">
+        <div class="sec" style="text-align:center">
+            <div style="font-size:50px;margin-bottom:10px">🔌</div>
+            <h2 style="justify-content:center">Como Modificar Áudio de Apps</h2>
+            <div style="max-width:600px;margin:15px auto;text-align:left">
+                <div class="sys-step"><h4>📱 Celular (Android)</h4><p>Abra Spotify/YouTube. Volte aqui, vá em <code>🎛️ Equalizador</code> e toque <code>CAPTURAR ÁUDIO</code>. Permita compartilhar áudio da tela.</p></div>
+                <div class="sys-step"><h4>💻 PC (Windows/Mac)</h4><p>Abra player de música. Clique <code>CAPTURAR ÁUDIO</code> e selecione a aba com som. O equalizador processa em tempo real.</p></div>
+                <div class="sys-step"><h4>🎛️ Ajustar Som</h4><p>Use bandas de 31Hz-125Hz para graves. Use presets <code>Bass Boost</code>, <code>Mega Bass</code>, <code>Funk</code>.</p></div>
+                <div class="sys-step"><h4>📲 Apps Alternativos</h4><p><strong>Android:</strong> Wavelet, Poweramp EQ<br><strong>iPhone:</strong> Boom, EQ Player<br><strong>Windows:</strong> Equalizer APO + Peace<br><strong>Mac:</strong> eqMac, Boom 3D</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: FREQ ==================== -->
+    <div class="tab-c" id="tab-freq">
+        <div class="sec">
+            <h2>📊 Teste de Frequência</h2>
+            <p style="color:#888;font-size:11px;margin-bottom:12px">Se não ouvir, é o limite da sua caixa.</p>
+            <div class="fgrid">
+                <button class="fbtn" onclick="playF(16,this)">16Hz</button>
+                <button class="fbtn" onclick="playF(20,this)">20Hz</button>
+                <button class="fbtn" onclick="playF(25,this)">25Hz</button>
+                <button class="fbtn" onclick="playF(30,this)">30Hz</button>
+                <button class="fbtn" onclick="playF(35,this)">35Hz</button>
+                <button class="fbtn" onclick="playF(40,this)">40Hz</button>
+                <button class="fbtn" onclick="playF(45,this)">45Hz</button>
+                <button class="fbtn" onclick="playF(50,this)">50Hz</button>
+                <button class="fbtn" onclick="playF(60,this)">60Hz</button>
+                <button class="fbtn" onclick="playF(80,this)">80Hz</button>
+                <button class="fbtn" onclick="playF(100,this)">100Hz</button>
+                <button class="fbtn" onclick="playF(120,this)">120Hz</button>
+                <button class="fbtn" onclick="playF(150,this)">150Hz</button>
+                <button class="fbtn" onclick="playF(200,this)">200Hz</button>
+                <button class="fbtn" onclick="stopF()">⏹ Parar</button>
+            </div>
+            <div style="margin-top:15px">
+                <h2 style="color:#ff0040;font-size:13px;margin-bottom:8px">🔊 Sweep</h2>
+                <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                    <button class="fbtn" onclick="sweep(20,200,10)">20→200Hz 10s</button>
+                    <button class="fbtn" onclick="sweep(20,100,15)">20→100Hz 15s</button>
+                    <button class="fbtn" onclick="sweep(15,60,20)">15→60Hz 20s</button>
+                    <button class="fbtn" onclick="stopF()">⏹ Parar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: DOWNLOAD ==================== -->
+    <div class="tab-c" id="tab-download">
+        <div class="sec" style="text-align:center">
+            <h2 style="justify-content:center">💾 Baixar Áudio</h2>
+            <div style="margin:15px 0">
+                <div class="sitem" style="max-width:280px;margin:0 auto"><label>Duração (seg) <span id="vDur">10</span></label><input type="range" id="sDur" min="5" max="60" value="10" oninput="document.getElementById('vDur').textContent=this.value"></div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:15px 0">
+                <button class="btn btn-d" onclick="recDL()">🎙️ GRAVAR E BAIXAR</button>
+                <button class="btn btn-s" onclick="stopRec()">⏹ PARAR</button>
+            </div>
+            <div class="dlgrid">
+                <div class="dlcard"><div class="dlicon">🎵</div><div class="dltitle">Batida Atual</div><div class="dldesc">Config atual em WebM</div><button class="dlbtn" onclick="recDL()">Gravar</button></div>
+                <div class="dlcard"><div class="dlicon">📊</div><div class="dltitle">Tom Puro</div><div class="dldesc">Senoidal na freq escolhida</div><button class="dlbtn" onclick="dlTone()">WAV</button></div>
+                <div class="dlcard"><div class="dlicon">🌊</div><div class="dltitle">Sweep</div><div class="dldesc">20Hz a 200Hz</div><button class="dlbtn" onclick="dlSweep()">WAV</button></div>
+                <div class="dlcard"><div class="dlicon">💥</div><div class="dltitle">Bass Drop</div><div class="dldesc">Drop intenso</div><button class="dlbtn" onclick="dlDrop()">WAV</button></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p style="font-size:15px;margin-bottom:8px">🐉 <a href="https://www.youtube.com/@dragonsplaysofc" target="_blank">Dragons Plays OFC</a></p>
+        <p><a href="https://www.youtube.com/@dragonsplaysofc" target="_blank">▶ YouTube: @dragonsplaysofc</a></p>
+        <p>Se inscreva no canal para mais conteúdo!</p>
+        <p style="margin-top:8px">🔊 Bass Generator Ultimate v3.0</p>
+    </footer>
+</div>
+
+<script>
+// ================================================
+// DATA
+// ================================================
+const genres = [
+    { id:'funk', name:'Funk', icon:'🔊', desc:'Batidão brasileiro', bpm:130, sub:30, bass:45,
+      subs:[
+        {id:'funkGrave',name:'Gravão',bpm:130,bass:45,sub:30,int:80,dist:20,kick:70,sw:0,k:[1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0]},
+        {id:'funkBH',name:'Funk BH',bpm:150,bass:50,sub:35,int:75,dist:15,kick:65,sw:20,k:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0]},
+        {id:'mandelao',name:'Mandelão',bpm:140,bass:40,sub:25,int:95,dist:40,kick:90,sw:10,k:[1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0],s:[0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1],h:[1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1],b:[1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0]},
+        {id:'proibidao',name:'Proibidão',bpm:135,bass:42,sub:28,int:90,dist:35,kick:80,sw:5,k:[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0],h:[1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1],b:[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]},
+        {id:'funk150',name:'150 BPM',bpm:150,bass:48,sub:32,int:85,dist:25,kick:75,sw:15,k:[1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,0]}
+      ]},
+    { id:'trap', name:'Trap', icon:'🎤', desc:'808 pesado', bpm:140, sub:22, bass:35,
+      subs:[
+        {id:'trap808',name:'808 Classic',bpm:140,bass:35,sub:22,int:90,dist:30,kick:80,sw:0,k:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0]},
+        {id:'trapHard',name:'Hard Trap',bpm:150,bass:38,sub:20,int:100,dist:50,kick:100,sw:0,k:[1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0]},
+        {id:'trapWave',name:'Wave/Chill',bpm:75,bass:30,sub:20,int:70,dist:10,kick:50,sw:0,k:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'phonk',name:'Phonk',bpm:130,bass:40,sub:25,int:85,dist:45,kick:85,sw:5,k:[1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,1,0,1,1,0,1,0,1,1,0,1,1,0,1,0],b:[1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0]}
+      ]},
+    { id:'edm', name:'EDM', icon:'🎧', desc:'Eletrônica', bpm:128, sub:30, bass:40,
+      subs:[
+        {id:'house',name:'House',bpm:128,bass:42,sub:28,int:75,dist:15,kick:70,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'dubstep',name:'Dubstep',bpm:140,bass:35,sub:20,int:100,dist:60,kick:90,sw:0,k:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],s:[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,1,0,0,1,0,0,0,0,0,1,0,1,0]},
+        {id:'techno',name:'Techno',bpm:135,bass:45,sub:30,int:80,dist:25,kick:80,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]},
+        {id:'dnb',name:'Drum & Bass',bpm:174,bass:50,sub:30,int:85,dist:20,kick:75,sw:10,k:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0]},
+        {id:'trance',name:'Trance',bpm:138,bass:40,sub:28,int:70,dist:10,kick:65,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],h:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],b:[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+      ]},
+    { id:'reggaeton', name:'Reggaeton', icon:'🌴', desc:'Dembow latino', bpm:95, sub:35, bass:50,
+      subs:[
+        {id:'dembow',name:'Dembow',bpm:95,bass:50,sub:35,int:80,dist:15,kick:70,sw:10,k:[1,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0]},
+        {id:'reggaetonOld',name:'Old School',bpm:90,bass:48,sub:32,int:75,dist:10,kick:65,sw:15,k:[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0]},
+        {id:'perreo',name:'Perreo Intenso',bpm:100,bass:45,sub:30,int:90,dist:30,kick:80,sw:20,k:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],s:[0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1]}
+      ]},
+    { id:'hiphop', name:'Hip Hop', icon:'🎤', desc:'Boom bap & moderno', bpm:90, sub:28, bass:42,
+      subs:[
+        {id:'boombap',name:'Boom Bap',bpm:90,bass:42,sub:28,int:75,dist:15,kick:65,sw:25,k:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'lofi',name:'Lo-Fi',bpm:80,bass:38,sub:25,int:60,dist:10,kick:50,sw:30,k:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+        {id:'drillBR',name:'Drill BR',bpm:140,bass:38,sub:22,int:90,dist:35,kick:85,sw:5,k:[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0],h:[1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1],b:[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0]}
+      ]},
+    { id:'reggae', name:'Reggae', icon:'🟢', desc:'Jamaicano roots', bpm:75, sub:35, bass:50,
+      subs:[
+        {id:'roots',name:'Roots',bpm:75,bass:50,sub:35,int:70,dist:10,kick:55,sw:15,k:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],s:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],h:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'dub',name:'Dub',bpm:70,bass:45,sub:25,int:80,dist:20,kick:60,sw:10,k:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],s:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0]},
+        {id:'dancehall',name:'Dancehall',bpm:100,bass:48,sub:30,int:85,dist:20,kick:70,sw:20,k:[1,0,0,1,0,0,1,0,0,0,1,0,0,0,0,1],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,1,0,0,1,0,0,0,1,0,0,0,0,1]}
+      ]},
+    { id:'sertanejo', name:'Sertanejo', icon:'🤠', desc:'Universitário', bpm:130, sub:35, bass:50,
+      subs:[
+        {id:'sertPancadao',name:'Pancadão',bpm:130,bass:50,sub:35,int:85,dist:25,kick:75,sw:5,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'piseiro',name:'Piseiro',bpm:145,bass:48,sub:32,int:80,dist:20,kick:70,sw:15,k:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1]},
+        {id:'forro',name:'Forró',bpm:120,bass:45,sub:30,int:75,dist:15,kick:65,sw:20,k:[1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0],s:[0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]}
+      ]},
+    { id:'pagode', name:'Pagode', icon:'🪘', desc:'Samba e pagode', bpm:100, sub:35, bass:48,
+      subs:[
+        {id:'pagodeGrave',name:'Pagodão',bpm:100,bass:48,sub:35,int:80,dist:15,kick:65,sw:25,k:[1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'sambaGrave',name:'Samba Grave',bpm:110,bass:45,sub:30,int:75,dist:10,kick:60,sw:30,k:[1,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0],h:[1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]}
+      ]},
+    { id:'kpop', name:'K-Pop', icon:'🇰🇷', desc:'Pop coreano', bpm:120, sub:30, bass:42,
+      subs:[
+        {id:'kpopBass',name:'K-Pop Bass',bpm:120,bass:42,sub:30,int:75,dist:15,kick:65,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'kpopHard',name:'K-Pop Hard',bpm:130,bass:38,sub:25,int:90,dist:30,kick:80,sw:0,k:[1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0]}
+      ]},
+    { id:'pop', name:'Pop', icon:'🎵', desc:'Pop moderno', bpm:115, sub:32, bass:45,
+      subs:[
+        {id:'popBass',name:'Pop Bass',bpm:115,bass:45,sub:32,int:70,dist:10,kick:60,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'popDance',name:'Dance Pop',bpm:128,bass:42,sub:28,int:80,dist:20,kick:70,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]}
+      ]},
+    { id:'rock', name:'Rock', icon:'🎸', desc:'Rock pesado', bpm:120, sub:35, bass:50,
+      subs:[
+        {id:'rockHeavy',name:'Heavy Rock',bpm:120,bass:50,sub:35,int:85,dist:45,kick:80,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],b:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]},
+        {id:'metal',name:'Metal',bpm:160,bass:55,sub:30,int:95,dist:60,kick:95,sw:0,k:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]}
+      ]},
+    { id:'test', name:'Teste', icon:'📊', desc:'Teste de grave', bpm:120, sub:18, bass:30,
+      subs:[
+        {id:'subTest',name:'Sub Test',bpm:120,bass:30,sub:18,int:90,dist:10,kick:50,sw:0,k:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],s:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],h:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],b:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+        {id:'bassBoosted',name:'Bass Boosted',bpm:128,bass:38,sub:20,int:100,dist:50,kick:100,sw:0,k:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],s:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],h:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],b:[1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0]},
+        {id:'terremoto',name:'Terremoto',bpm:145,bass:35,sub:18,int:100,dist:60,kick:100,sw:15,k:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],s:[0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,1],h:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],b:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]}
+      ]}
+];
+
+const brands=[
+    {id:'jbl',name:'JBL',icon:'🔊',models:'Flip 6, Charge 5, Boombox 3, PartyBox',fMin:55,fMax:20000,bass:'Bom',eq:{s:-2,b:6,l:2,m:0,h:2}},
+    {id:'philco',name:'Philco',icon:'📻',models:'PBS40, PBS150, PBS350',fMin:60,fMax:18000,bass:'Moderado',eq:{s:-4,b:8,l:3,m:1,h:1}},
+    {id:'go',name:'Go/Multilaser',icon:'🎵',models:'Pulse SP, Multilaser SP',fMin:80,fMax:18000,bass:'Básico',eq:{s:-6,b:10,l:5,m:2,h:-1}},
+    {id:'sony',name:'Sony',icon:'🎧',models:'SRS-XB43, XB33, XG500',fMin:50,fMax:20000,bass:'Muito Bom',eq:{s:2,b:4,l:1,m:0,h:2}},
+    {id:'marshall',name:'Marshall',icon:'🎸',models:'Kilburn II, Stanmore III',fMin:45,fMax:20000,bass:'Excelente',eq:{s:3,b:3,l:2,m:1,h:1}},
+    {id:'lg',name:'LG XBOOM',icon:'🏠',models:'XBOOM Go, 360, RN7',fMin:50,fMax:20000,bass:'Muito Bom',eq:{s:1,b:5,l:2,m:0,h:2}},
+    {id:'harman',name:'Harman Kardon',icon:'✨',models:'Onyx, Aura, Go+Play',fMin:40,fMax:20000,bass:'Premium',eq:{s:4,b:2,l:1,m:0,h:3}},
+    {id:'bose',name:'Bose',icon:'🎶',models:'SoundLink, S1 Pro',fMin:45,fMax:20000,bass:'Excelente',eq:{s:3,b:3,l:1,m:0,h:2}},
+    {id:'edifier',name:'Edifier',icon:'🔉',models:'R1280T, R1700BT',fMin:50,fMax:20000,bass:'Bom',eq:{s:1,b:4,l:2,m:0,h:2}},
+    {id:'generic',name:'Genérica',icon:'📦',models:'Sem marca',fMin:100,fMax:16000,bass:'Fraco',eq:{s:-8,b:12,l:6,m:3,h:-2}},
+    {id:'car',name:'Automotivo',icon:'🚗',models:'Pioneer, Taramps, Stetsom',fMin:25,fMax:20000,bass:'Extremo',eq:{s:6,b:4,l:0,m:-2,h:1}},
+    {id:'home',name:'Home Theater',icon:'🏠',models:'Samsung, LG, Yamaha',fMin:30,fMax:20000,bass:'Muito Bom',eq:{s:5,b:3,l:1,m:0,h:2}}
+];
+
+const eqP={flat:[0,0,0,0,0,0,0,0,0,0],bassBoost:[10,8,6,3,0,0,0,0,0,0],megaBass:[12,12,10,6,2,0,0,-2,-2,0],vShape:[8,6,4,0,-3,-3,0,3,5,6],subBoost:[12,10,4,0,0,0,0,0,0,0],loudness:[6,4,0,-2,-4,-4,-2,0,4,6],carAudio:[10,8,6,2,-2,-2,0,2,4,4],funk:[8,6,4,2,0,-2,0,2,3,4]};
+const eqHz=[31,62,125,250,500,1000,2000,4000,8000,16000];
+
+// ================================================
+// AUDIO ENGINE
+// ================================================
+let ax=null,mg=null,comp=null,an=null,eqF=[],playing=false,curStep=0,tid=null,fOsc=null,sysStr=null,sysSrc=null,mRec=null,rChunks=[],rStart=0,rTid=null;
+let pat={kick:[1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],sub:[1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0]};
+let curGenre='funk',curSub='funkGrave';
+
+function initA(){
+    if(ax)return;
+    ax=new(window.AudioContext||window.webkitAudioContext)();
+    comp=ax.createDynamicsCompressor();comp.threshold.value=-8;comp.ratio.value=10;comp.attack.value=.003;comp.release.value=.1;
+    mg=ax.createGain();mg.gain.value=.75;
+    an=ax.createAnalyser();an.fftSize=2048;
+    eqF=eqHz.map(f=>{let fi=ax.createBiquadFilter();fi.type='peaking';fi.frequency.value=f;fi.Q.value=1.4;fi.gain.value=0;return fi});
+    mg.connect(eqF[0]);for(let i=0;i<eqF.length-1;i++)eqF[i].connect(eqF[i+1]);
+    eqF[eqF.length-1].connect(comp);comp.connect(an);an.connect(ax.destination);
+}
+
+function dCurve(a){let n=44100,c=new Float32Array(n),d=Math.PI/180;for(let i=0;i<n;i++){let x=i*2/n-1;c[i]=(3+a)*x*20*d/(Math.PI+a*Math.abs(x))}return c}
+
+function sKick(t){
+    let ak=gi('sKick')/100,bf=gf('sBass'),it=gi('sInt')/100,ds=gi('sDist')/100;
+    let o=ax.createOscillator(),g=ax.createGain(),w=ax.createWaveShaper();
+    w.curve=dCurve(ds*400);w.oversample='4x';o.type='sine';
+    o.frequency.setValueAtTime(150*ak,t);o.frequency.exponentialRampToValueAtTime(bf,t+.08);
+    g.gain.setValueAtTime(it*1.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.4);
+    o.connect(w);w.connect(g);g.connect(mg);o.start(t);o.stop(t+.4);
+    let c=ax.createOscillator(),cg=ax.createGain();c.type='square';
+    c.frequency.setValueAtTime(1500,t);c.frequency.exponentialRampToValueAtTime(200,t+.02);
+    cg.gain.setValueAtTime(ak*.3,t);cg.gain.exponentialRampToValueAtTime(.001,t+.03);
+    c.connect(cg);cg.connect(mg);c.start(t);c.stop(t+.03);
+}
+
+function sSub(t){
+    let sf=gf('sSub'),it=gi('sInt')/100,ds=gi('sDist')/100;
+    let o=ax.createOscillator(),g=ax.createGain(),w=ax.createWaveShaper();
+    w.curve=dCurve(ds*200);o.type='sine';
+    o.frequency.setValueAtTime(sf*1.5,t);o.frequency.exponentialRampToValueAtTime(sf,t+.05);
+    g.gain.setValueAtTime(it*1.2,t);g.gain.exponentialRampToValueAtTime(.001,t+.5);
+    o.connect(w);w.connect(g);g.connect(mg);o.start(t);o.stop(t+.5);
+    let s2=ax.createOscillator(),s2g=ax.createGain();s2.type='sine';s2.frequency.value=sf/2;
+    s2g.gain.setValueAtTime(it*.6,t);s2g.gain.exponentialRampToValueAtTime(.001,t+.6);
+    s2.connect(s2g);s2g.connect(mg);s2.start(t);s2.stop(t+.6);
+}
+
+function sSnare(t){
+    let buf=ax.createBuffer(1,ax.sampleRate*.15,ax.sampleRate);let d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*.8;
+    let n=ax.createBufferSource();n.buffer=buf;let ng=ax.createGain(),f=ax.createBiquadFilter();
+    ng.gain.setValueAtTime(.5,t);ng.gain.exponentialRampToValueAtTime(.001,t+.15);
+    f.type='highpass';f.frequency.value=1000;n.connect(f);f.connect(ng);ng.connect(mg);n.start(t);n.stop(t+.15);
+    let o=ax.createOscillator(),og=ax.createGain();o.type='triangle';
+    o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(100,t+.05);
+    og.gain.setValueAtTime(.4,t);og.gain.exponentialRampToValueAtTime(.001,t+.1);
+    o.connect(og);og.connect(mg);o.start(t);o.stop(t+.1);
+}
+
+function sHH(t){
+    let buf=ax.createBuffer(1,ax.sampleRate*.05,ax.sampleRate);let d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    let n=ax.createBufferSource();n.buffer=buf;let g=ax.createGain(),f=ax.createBiquadFilter();
+    g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);
+    f.type='highpass';f.frequency.value=7000;n.connect(f);f.connect(g);g.connect(mg);n.start(t);n.stop(t+.05);
+}
+
+function togglePlay(){
+    if(playing){stopAll();return}
+    initA();if(ax.state==='suspended')ax.resume();
+    playing=true;curStep=0;
+    document.getElementById('btnP').textContent='⏸ PAUSAR';
+    document.getElementById('btnP').classList.add('on');
+    tick();startViz();
+}
+
+function tick(){
+    if(!playing)return;
+    let bpm=gi('sBpm'),st=(60/bpm)/4,sw=gi('sSwing')/100;
+    let t=ax.currentTime+.05+((curStep%2===1)?st*sw*.33:0);
+    if(pat.kick[curStep])sKick(t);if(pat.sub[curStep])sSub(t);
+    if(pat.snare[curStep])sSnare(t);if(pat.hihat[curStep])sHH(t);
+    updStep();curStep=(curStep+1)%16;tid=setTimeout(tick,st*1000);
+}
+
+function stopAll(){
+    playing=false;curStep=0;if(tid){clearTimeout(tid);tid=null}
+    document.getElementById('btnP').textContent='▶ TOCAR';
+    document.getElementById('btnP').classList.remove('on');updStep();stopF();
+}
+
+// FREQ TEST
+function playF(hz,el){initA();if(ax.state==='suspended')ax.resume();stopF();
+    fOsc=ax.createOscillator();let g=ax.createGain();fOsc.type='sine';fOsc.frequency.value=hz;
+    g.gain.setValueAtTime(0,ax.currentTime);g.gain.linearRampToValueAtTime(.7,ax.currentTime+.1);
+    fOsc.connect(g);g.connect(mg);fOsc.start();fOsc._g=g;
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+    if(el)el.classList.add('on');startViz();
+}
+function stopF(){if(fOsc){try{fOsc.stop()}catch(e){}fOsc=null}document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'))}
+function sweep(a,b,d){initA();if(ax.state==='suspended')ax.resume();stopF();
+    fOsc=ax.createOscillator();let g=ax.createGain();fOsc.type='sine';
+    fOsc.frequency.setValueAtTime(a,ax.currentTime);fOsc.frequency.exponentialRampToValueAtTime(b,ax.currentTime+d);
+    g.gain.value=.7;fOsc.connect(g);g.connect(mg);fOsc.start();fOsc.stop(ax.currentTime+d);startViz();
+}
+
+// SYSTEM AUDIO
+async function captureSys(){
+    try{initA();if(ax.state==='suspended')await ax.resume();
+    let s;if(navigator.mediaDevices.getDisplayMedia){s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});s.getVideoTracks().forEach(t=>t.stop())}
+    else{s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}})}
+    if(!s.getAudioTracks().length){alert('Sem áudio! Selecione aba com som.');return}
+    sysStr=s;sysSrc=ax.createMediaStreamSource(s);sysSrc.connect(mg);
+    document.getElementById('btnCap').textContent='✅ CAPTURANDO';document.getElementById('btnCap').style.background='#0a4';
+    startViz();s.getAudioTracks()[0].onended=()=>stopSys();
+    }catch(e){alert('Erro: '+e.message+'\n\nUse Chrome/Edge. Selecione aba com áudio.')}
+}
+function stopSys(){if(sysStr){sysStr.getTracks().forEach(t=>t.stop());sysStr=null}
+    if(sysSrc){sysSrc.disconnect();sysSrc=null}
+    document.getElementById('btnCap').textContent='🎤 CAPTURAR ÁUDIO';document.getElementById('btnCap').style.background=''}
+
+// RECORDING
+function recDL(){initA();if(ax.state==='suspended')ax.resume();
+    let dest=ax.createMediaStreamDestination();an.connect(dest);rChunks=[];
+    mRec=new MediaRecorder(dest.stream,{mimeType:'audio/webm'});
+    mRec.ondataavailable=e=>{if(e.data.size>0)rChunks.push(e.data)};
+    mRec.onstop=()=>{let blob=new Blob(rChunks,{type:'audio/webm'});let u=URL.createObjectURL(blob);
+        let a=document.createElement('a');a.href=u;a.download='bass_'+Date.now()+'.webm';a.click();URL.revokeObjectURL(u);
+        document.getElementById('recInd').classList.remove('active');if(rTid)clearInterval(rTid)};
+    if(!playing)togglePlay();mRec.start();rStart=Date.now();
+    document.getElementById('recInd').classList.add('active');
+    rTid=setInterval(()=>{document.getElementById('recTxt').textContent='Gravando... '+Math.floor((Date.now()-rStart)/1000)+'s'},200);
+    let dur=parseInt(document.getElementById('sDur').value)*1000;
+    setTimeout(()=>{if(mRec&&mRec.state==='recording'){mRec.stop();an.disconnect(dest)}},dur);
+}
+function stopRec(){if(mRec&&mRec.state==='recording')mRec.stop();if(rTid)clearInterval(rTid);document.getElementById('recInd').classList.remove('active')}
+
+function genWAV(fn,dur,name){
+    let sr=44100,n=sr*dur,buf=new Float32Array(n);fn(buf,sr,n);
+    let wav=encWAV(buf,sr);let blob=new Blob([wav],{type:'audio/wav'});
+    let u=URL.createObjectURL(blob);let a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);
+}
+function encWAV(s,sr){let b=new ArrayBuffer(44+s.length*2),v=new DataView(b);
+    function ws(o,st){for(let i=0;i<st.length;i++)v.setUint8(o+i,st.charCodeAt(i))}
+    ws(0,'RIFF');v.setUint32(4,36+s.length*2,true);ws(8,'WAVE');ws(12,'fmt ');v.setUint32(16,16,true);
+    v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);
+    v.setUint16(32,2,true);v.setUint16(34,16,true);ws(36,'data');v.setUint32(40,s.length*2,true);
+    let o=44;for(let i=0;i<s.length;i++){v.setInt16(o,Math.max(-1,Math.min(1,s[i]))*32767,true);o+=2}return b}
+function dlTone(){let hz=gf('sBass'),d=parseInt(document.getElementById('sDur').value);
+    genWAV((b,sr,n)=>{for(let i=0;i<n;i++){let e=1;if(i<sr*.01)e=i/(sr*.01);if(i>n-sr*.01)e=(n-i)/(sr*.01);b[i]=Math.sin(2*Math.PI*hz*i/sr)*.8*e}},d,'tom_'+hz+'hz.wav')}
+function dlSweep(){let d=parseInt(document.getElementById('sDur').value);
+    genWAV((b,sr,n)=>{for(let i=0;i<n;i++){let t=i/sr,f=20*Math.pow(10,t/d);let e=1;if(i<sr*.01)e=i/(sr*.01);if(i>n-sr*.01)e=(n-i)/(sr*.01);b[i]=Math.sin(2*Math.PI*f*t)*.8*e}},d,'sweep.wav')}
+function dlDrop(){genWAV((b,sr,n)=>{for(let i=0;i<n;i++){let t=i/sr,f=200*Math.exp(-t*3)+25;b[i]=Math.tanh(Math.sin(2*Math.PI*f*t)*3)*Math.exp(-t*1.5)*.9}},5,'bass_drop.wav')}
+
+// ================================================
+// UI
+// ================================================
+function gi(id){return parseInt(document.getElementById(id).value)}
+function gf(id){return parseFloat(document.getElementById(id).value)}
+
+function updS(){
+    ['Vol','Bpm','Bass','Sub','Int','Dist','Kick','Swing'].forEach(n=>{
+        let el=document.getElementById('v'+n),sl=document.getElementById('s'+n);
+        if(el&&sl)el.textContent=sl.value+(['Vol','Int','Dist','Kick','Swing'].includes(n)?'%':'');
+    });
+    document.getElementById('bpmS').textContent=gi('sBpm')+' BPM';
+    document.getElementById('npInfo').textContent=gi('sBpm')+' BPM | '+gi('sBass')+'Hz Bass | '+gi('sSub')+'Hz Sub';
+    if(mg)mg.gain.value=gi('sVol')/100;
+}
+
+function loadSub(sub){
+    document.getElementById('sBpm').value=sub.bpm;document.getElementById('sBass').value=sub.bass;
+    document.getElementById('sSub').value=sub.sub;document.getElementById('sInt').value=sub.int;
+    document.getElementById('sDist').value=sub.dist;document.getElementById('sKick').value=sub.kick;
+    document.getElementById('sSwing').value=sub.sw;
+    pat.kick=[...sub.k];pat.snare=[...sub.s];pat.hihat=[...sub.h];pat.sub=[...sub.b];
+    curSub=sub.id;updS();buildBeats();
+    document.getElementById('npSub').textContent=sub.name;
+}
+
+function showTab(n){
+    document.querySelectorAll('.tab-c').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    let tab=document.getElementById('tab-'+n);if(tab)tab.classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b=>{
+        let map={genres:'Estilo',beats:'Batida',brands:'Marca',eq:'Equaliz',sysaudio:'Apps',freq:'Teste',download:'Download'};
+        Object.keys(map).forEach(k=>{if(k===n&&b.textContent.includes(map[k]))b.classList.add('active')});
+    });
+}
+
+// GENRES UI
+function buildGenres(){
+    let g=document.getElementById('genreGrid');g.innerHTML='';
+    genres.forEach(gen=>{
+        let c=document.createElement('div');c.className='genre-card'+(gen.id===curGenre?' active':'');c.id='gc-'+gen.id;
+        c.innerHTML=`<div class="gicon">${gen.icon}</div><div class="gname">${gen.name}</div><div class="gdesc">${gen.desc}</div><div class="gbpm">${gen.bpm} BPM</div>`;
+        c.onclick=()=>selectGenre(gen);g.appendChild(c);
+    });
+}
+
+function selectGenre(gen){
+    curGenre=gen.id;
+    document.querySelectorAll('.genre-card').forEach(c=>c.classList.remove('active'));
+    document.getElementById('gc-'+gen.id).classList.add('active');
+    document.getElementById('npGenre').textContent=gen.icon+' '+gen.name;
+
+    // Show sub-genres
+    let box=document.getElementById('subgenreBox');box.style.display='block';
+    document.getElementById('subgenreTitle').textContent=gen.icon+' Sub-estilos de '+gen.name;
+    let sg=document.getElementById('subgenreGrid');sg.innerHTML='';
+    gen.subs.forEach((s,i)=>{
+        let btn=document.createElement('button');
+        btn.className='subgenre-btn'+(i===0?' active':'');btn.id='sg-'+s.id;
+        btn.innerHTML=`<div style="font-size:14px;font-weight:bold">${s.name}</div><div style="font-size:10px;color:#888;margin-top:3px">${s.bpm} BPM</div>`;
+        btn.onclick=()=>{
+            document.querySelectorAll('.subgenre-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');loadSub(s);
+        };
+        sg.appendChild(btn);
+    });
+    // Load first sub
+    loadSub(gen.subs[0]);
+}
+
+// BEATS UI
+function buildBeats(){
+    let c=document.getElementById('beatBox');c.innerHTML='';
+    let rows=[{k:'kick',n:'🥁 Kick',col:'#ff0040'},{k:'snare',n:'🪘 Snare',col:'#ff6600'},{k:'hihat',n:'🔔 HiHat',col:'#fa0'},{k:'sub',n:'🔊 Sub',col:'#ff0080'}];
+    rows.forEach(r=>{
+        let row=document.createElement('div');row.className='brow';
+        let l=document.createElement('div');l.className='blbl';l.textContent=r.n;
+        let g=document.createElement('div');g.className='bgrid';
+        for(let i=0;i<16;i++){
+            let s=document.createElement('div');s.className='bstep';s.dataset.row=r.k;s.dataset.step=i;s.textContent=i+1;
+            if(pat[r.k][i]){s.classList.add('active');s.style.background=r.col+'80';s.style.borderColor=r.col}
+            s.onclick=function(){let rk=this.dataset.row,si=+this.dataset.step;pat[rk][si]=pat[rk][si]?0:1;
+                if(pat[rk][si]){this.classList.add('active');let c2=rows.find(x=>x.k===rk).col;this.style.background=c2+'80';this.style.borderColor=c2}
+                else{this.classList.remove('active');this.style.background='#1a1a1a';this.style.borderColor='#333'}};
+            g.appendChild(s);
+        }
+        row.appendChild(l);row.appendChild(g);c.appendChild(row);
+    });
+}
+function updStep(){document.querySelectorAll('.bstep').forEach(s=>{s.classList.toggle('cur',+s.dataset.step===curStep&&playing)})}
+
+// BRANDS UI
+function buildBrands(){
+    let g=document.getElementById('brandGrid');g.innerHTML='';
+    brands.forEach(b=>{
+        let c=document.createElement('div');c.className='bcard';c.id='br-'+b.id;
+        c.innerHTML=`<div class="bicon">${b.icon}</div><div class="bname">${b.name}</div><div class="bdesc">${b.models}</div><div class="bfreq">📊 ${b.fMin}Hz+ | Bass: ${b.bass}</div>`;
+        c.onclick=()=>selBrand(b);g.appendChild(c);
+    });
+}
+
+function selBrand(b){
+    document.querySelectorAll('.bcard').forEach(c=>c.classList.remove('active'));
+    document.getElementById('br-'+b.id).classList.add('active');
+    initA();
+    let gains=[b.eq.s,b.eq.b,(b.eq.b+b.eq.l)/2,b.eq.l,b.eq.m,b.eq.m,b.eq.h,b.eq.h,b.eq.h,b.eq.h];
+    eqF.forEach((f,i)=>{f.gain.value=gains[i]||0});updEQS();
+    document.getElementById('sBass').value=Math.max(b.fMin,35);document.getElementById('sSub').value=Math.max(b.fMin-10,18);updS();
+    let info=document.getElementById('brandInfo');info.style.display='block';
+    document.getElementById('biTitle').textContent=b.icon+' '+b.name;
+    document.getElementById('biContent').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+        <div style="background:#1a1a1a;padding:10px;border-radius:6px"><strong style="color:#ff6600">Modelos:</strong><br><span style="color:#aaa">${b.models}</span></div>
+        <div style="background:#1a1a1a;padding:10px;border-radius:6px"><strong style="color:#ff6600">Resposta:</strong><br><span style="color:#aaa">${b.fMin}Hz - ${b.fMax}Hz</span></div>
+        <div style="background:#1a1a1a;padding:10px;border-radius:6px"><strong style="color:#ff6600">Graves:</strong><br><span style="color:#aaa">${b.bass}</span></div>
+        <div style="background:#1a1a1a;padding:10px;border-radius:6px"><strong style="color:#ff6600">Dica:</strong><br><span style="color:#aaa">EQ otimizado aplicado!</span></div>
+    </div><p style="color:#ff0040;text-align:center;margin-top:10px;font-size:11px">⚠️ Não exceda ${b.fMin<50?'80%':'70%'} do volume</p>`;
+}
+
+// EQ UI
+function buildEQ(){
+    let c=document.getElementById('eqBars');c.innerHTML='';
+    eqHz.forEach((f,i)=>{
+        let band=document.createElement('div');band.className='eqband';
+        let v=document.createElement('div');v.className='eqv';v.id='eqV'+i;v.textContent='0dB';
+        let inp=document.createElement('input');inp.type='range';inp.min=-12;inp.max=12;inp.value=0;inp.id='eq'+i;
+        inp.style.cssText='writing-mode:vertical-lr;direction:rtl;height:110px;width:28px';
+        inp.oninput=function(){if(eqF[i])eqF[i].gain.value=+this.value;document.getElementById('eqV'+i).textContent=this.value+'dB'};
+        let lbl=document.createElement('label');lbl.textContent=f>=1000?(f/1000)+'k':f;
+        band.appendChild(v);band.appendChild(inp);band.appendChild(lbl);c.appendChild(band);
+    });
+}
+function updEQS(){eqHz.forEach((f,i)=>{let s=document.getElementById('eq'+i);if(s&&eqF[i]){s.value=Math.round(eqF[i].gain.value);document.getElementById('eqV'+i).textContent=Math.round(eqF[i].gain.value)+'dB'}})}
+function loadEQ(n){initA();let p=eqP[n];if(!p)return;eqF.forEach((f,i)=>{f.gain.value=p[i]||0});updEQS()}
+
+// VISUALIZER
+function startViz(){requestAnimationFrame(drawViz)}
+function drawViz(){
+    if(!an){requestAnimationFrame(drawViz);return}
+    let cv=document.getElementById('vizCv'),c=cv.getContext('2d');
+    cv.width=cv.parentElement.clientWidth;cv.height=cv.parentElement.clientHeight;
+    let len=an.frequencyBinCount,data=new Uint8Array(len);an.getByteFrequencyData(data);
+    c.clearRect(0,0,cv.width,cv.height);
+    let ba=0;for(let i=0;i<10;i++)ba+=data[i];ba/=10;
+    if(ba>80){let gl=c.createRadialGradient(cv.width/2,cv.height,0,cv.width/2,cv.height,cv.height);
+        gl.addColorStop(0,`rgba(255,0,64,${ba/500})`);gl.addColorStop(1,'transparent');c.fillStyle=gl;c.fillRect(0,0,cv.width,cv.height)}
+    let bars=64,bw=cv.width/bars-2;
+    for(let i=0;i<bars;i++){let di=Math.floor(i*len/bars),v=data[di],h=(v/255)*cv.height*.9,x=i*(bw+2);
+        let hue=i<bars*.2?0:i<bars*.4?20:i<bars*.6?40:200;
+        let gr=c.createLinearGradient(x,cv.height-h,x,cv.height);
+        gr.addColorStop(0,`hsl(${hue},100%,${50+v/5}%)`);gr.addColorStop(1,`hsl(${hue},100%,30%)`);
+        c.fillStyle=gr;c.fillRect(x,cv.height-h,bw,h)}
+    let bi=document.getElementById('bassS');bi.textContent=ba>150?'🔊 MAX':ba>80?'🔊 BASS':'BASS';
+    updVM(data);requestAnimationFrame(drawViz);
+}
+
+function updVM(data){
+    let m=document.getElementById('vMeter');
+    if(!m.children.length){for(let i=0;i<40;i++){let b=document.createElement('div');b.className='vbar';b.style.height='2px';m.appendChild(b)}}
+    let bars=m.children;for(let i=0;i<bars.length;i++){
+        let di=Math.floor(i*(data?data.length:0)/bars.length),v=data?(data[di]||0):0;
+        bars[i].style.height=Math.max(2,v/255*35)+'px';
+        bars[i].style.background=v>200?'#f04':v>150?'#f60':v>100?'#fa0':'#0c4';
+    }
+}
+
+// INIT
+window.addEventListener('load',()=>{buildGenres();buildBeats();buildBrands();buildEQ();updS();startViz();selectGenre(genres[0])});
+</script>
+</body>
+</html>
